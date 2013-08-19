@@ -50,7 +50,6 @@ public class RejTreeKeyView extends RejTreeNodeView {
             numValues = -1;
         }
 
-
         JLabel metadataLabel = new JLabel(String.format(metadataTemplate, keyName, numSubkeys, numValues), JLabel.LEFT);
         metadataLabel.setBorder(BorderFactory.createTitledBorder("Metadata"));
         metadataLabel.setVerticalAlignment(SwingConstants.TOP);
@@ -74,6 +73,8 @@ public class RejTreeKeyView extends RejTreeNodeView {
             }
         } catch (RegistryParseException e) {
             // TODO(wb): need to add some warning here...
+            // not sure how to do it, though, since some data may have already been added
+            // but not necessarily all of it
         }
         catch (UnsupportedEncodingException e) {
             // TODO(wb): need to add some warning here...
