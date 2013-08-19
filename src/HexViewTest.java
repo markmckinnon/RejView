@@ -1,6 +1,5 @@
 import com.williballenthin.HexView.HexView;
 import javax.swing.*;
-import java.io.File;
 import java.nio.ByteBuffer;
 
 public class HexViewTest {

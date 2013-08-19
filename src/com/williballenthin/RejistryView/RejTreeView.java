@@ -1,7 +1,6 @@
 package com.williballenthin.RejistryView;
 
 import com.williballenthin.rejistry.RegistryHive;
-import com.williballenthin.rejistry.RegistryKey;
 import com.williballenthin.rejistry.RegistryParseException;
 
 import javax.swing.*;
@@ -12,7 +11,7 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
-import java.util.Iterator;
+import java.awt.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class RejTreeView extends JScrollPane implements TreeExpansionListener, TreeSelectionListener {
@@ -46,6 +45,7 @@ public class RejTreeView extends JScrollPane implements TreeExpansionListener, T
         this._tree.expandPath(new TreePath(rootNode.getPath()));
 
         setViewportView(this._tree);
+        setPreferredSize(new Dimension(250, 400));
     }
 
     /**
@@ -65,9 +65,8 @@ public class RejTreeView extends JScrollPane implements TreeExpansionListener, T
 
         if (node.getChildCount() == 0) {
             RejTreeNode n = (RejTreeNode)node.getUserObject();
-            Iterator<RejTreeNode> childit = n.getChildren().iterator();
-            while (childit.hasNext()) {
-                node.add(getTreeNode(childit.next()));
+            for (RejTreeNode rejTreeNode : n.getChildren()) {
+                node.add(getTreeNode(rejTreeNode));
             }
             this._tree_model.nodeStructureChanged(node);
         }

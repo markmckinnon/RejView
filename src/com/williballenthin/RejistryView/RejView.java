@@ -18,7 +18,7 @@ public class RejView extends JPanel implements RejTreeNodeSelectionListener {
 
         this._splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
                 this._tree_view, new JPanel());
-        this._splitPane.setResizeWeight(0.5);
+        this._splitPane.setResizeWeight(0);
         this._splitPane.setOneTouchExpandable(true);
         this._splitPane.setContinuousLayout(true);
 
