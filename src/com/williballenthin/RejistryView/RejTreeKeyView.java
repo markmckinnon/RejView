@@ -1,11 +1,11 @@
 package com.williballenthin.RejistryView;
 
-import com.williballenthin.rejistry.HexDump;
 import com.williballenthin.rejistry.RegistryParseException;
 import com.williballenthin.rejistry.RegistryValue;
-import com.williballenthin.rejistry.ValueData;
 
 import javax.swing.*;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 import java.awt.*;
 import java.io.UnsupportedEncodingException;
 import java.util.Iterator;
@@ -63,48 +63,55 @@ public class RejTreeKeyView extends RejTreeNodeView {
             int i = 0;
             while (valit.hasNext()) {
                 RegistryValue val = valit.next();
-                data[i][0] = val.getName();
-                data[i][1] = val.getValueType().toString();
-
-
-                ValueData valdata = val.getValue();
-                String valString = "";
-                switch(valdata.getValueType()) {
-                    case REG_SZ:
-                    case REG_EXPAND_SZ:
-                        valString = valdata.getAsString();
-                        break;
-                    case REG_MULTI_SZ: {
-                        StringBuilder sb = new StringBuilder();
-                        Iterator<String> it = valdata.getAsStringList().iterator();
-                        while (it.hasNext()) {
-                            sb.append(it.next());
-                            if (it.hasNext()) {
-                                sb.append(", ");
-                            }
-                        }
-                        valString = sb.toString();
-                        break;
-                    }
-                    case REG_DWORD:
-                    case REG_QWORD:
-                    case REG_BIG_ENDIAN:
-                        valString = String.format("0x%x", valdata.getAsNumber());
-                        break;
-                    default: {
-                        valString = HexDump.toHexString(valdata.getAsRawData().array());
-                    }
+                if (val.getName().length() == 0) {
+                    data[i][0] = "(Default)";
+                } else {
+                    data[i][0] = val.getName();
                 }
-
-                data[i][2] = valString;
+                data[i][1] = val.getValueType().toString();
+                data[i][2] = RegeditExeValueFormatter.format(val.getValue());
                 i++;
             }
-        } catch (RegistryParseException e) { }
-          catch (UnsupportedEncodingException e) {  }
+        } catch (RegistryParseException e) {
+            // TODO(wb): need to add some warning here...
+        }
+        catch (UnsupportedEncodingException e) {
+            // TODO(wb): need to add some warning here...
+        }
 
         JTable table = new JTable(data, columnNames);
         table.setAutoCreateRowSorter(true);
         table.setCellSelectionEnabled(false);
+        table.setRowSelectionAllowed(true);
+        table.setIntercellSpacing(new Dimension(10, 1));
+
+        // inspiration for packing the columns from:
+        //   http://jroller.com/santhosh/entry/packing_jtable_columns
+        if (table.getColumnCount() > 0) {
+            int width[] = new int[table.getColumnCount()];
+            int total = 0;
+            for (int j = 0; j < width.length; j++) {
+                TableColumn column = table.getColumnModel().getColumn(j);
+                int w = (int)table.getTableHeader().getDefaultRenderer().getTableCellRendererComponent(table, column.getIdentifier(), false, false, -1, j).getPreferredSize().getWidth();
+
+                if (table.getRowCount() > 0) {
+                    for (int i = 0; i < table.getRowCount(); i++) {
+                        int pw = (int)table.getCellRenderer(i, j).getTableCellRendererComponent(table, table.getValueAt(i, j), false, false, i, j).getPreferredSize().getWidth();
+                        w = Math.max(w, pw);
+                    }
+                }
+                width[j] += w + table.getIntercellSpacing().width;
+                total += w + table.getIntercellSpacing().width;
+            }
+            width[width.length - 1] += table.getVisibleRect().width - total;
+            TableColumnModel columnModel = table.getColumnModel();
+            for (int j = 0; j < width.length; j++) {
+                TableColumn column = columnModel.getColumn(j);
+                table.getTableHeader().setResizingColumn(column);
+                column.setWidth(width[j]);
+            }
+        }
+
         JScrollPane valuesPane = new JScrollPane(table);
         valuesPane.setBorder(BorderFactory.createTitledBorder("Values"));
 
